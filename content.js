@@ -52,7 +52,7 @@ window.SITE = {
   /* ---------- Invitation ---------- */
   inviteIntro: {
     en: "We solicit your gracious presence with family & friends on the auspicious occasion of the marriage of our elder daughter",
-    te: "శ్రీ సీతారామచంద్ర పరబ్రహ్మణే నమః. భద్రాద్రి రాముని దివ్య ఆశీస్సులతో, మా జ్యేష్ఠ పుత్రిక వివాహ మహోత్సవానికి మీరు సకుటుంబ సపరివార సమేతంగా విచ్చేయ ప్రార్థన."
+    te: "మా జ్యేష్ఠ పుత్రిక వివాహ మహోత్సవానికి మీరు సకుటుంబ సపరివార సమేతంగా విచ్చేయ ప్రార్థన."
   },
   tithiLine: {
     en: "Karthika Bahula Padyami · Sri Parabhava Nama Samvatsaram",
@@ -63,7 +63,7 @@ window.SITE = {
     relation: { en: "elder daughter of", te: "గార్ల జ్యేష్ఠ పుత్రిక" }
   },
   groomSide: {
-    homeLine: { en: "A.T. Agraharam, Guntur Dist.", te: "గుంటూరు జిల్లా, గుంటూరు నగరం, ఎ.టి.అగ్రహారం వాస్తవ్యులు" },
+    // homeLine: { en: "A.T. Agraharam, Guntur Dist.", te: "గుంటూరు జిల్లా, గుంటూరు నగరం, ఎ.టి.అగ్రహారం వాస్తవ్యులు" },
     // NOTE: the English card says "(Late)" after the mother's name; the Telugu card does not.
     // Please confirm and change here if needed.
     parents:  { en: "Sri Goli Hanumath Sastry & Smt. Goli Vijaya Lakshmi (Late)", te: "శ్రీ గోలి హనుమత్ శాస్త్రి మరియు శ్రీమతి గోలి విజయలక్ష్మి" },
@@ -107,17 +107,10 @@ window.SITE = {
   },
   /* ---------- Contact ---------- */
   contact: {
-    phone: "+917989578107",      // used for the tap-to-call link
-    display: "+91 7989578107",   // how the number is shown
+    phone: "+919989209569",      // used for the tap-to-call link
+    display: "+91 9989209569",   // how the number is shown
     label: { en: "For any assistance", te: "ఏదైనా సహాయం కోసం" }
   },
-
-  /* ---------- Gallery (placeholders until you add photos) ----------
-     1) Upload photos into the assets/photos folder on GitHub.
-     2) Add a line below for each, e.g.
-        { src: "assets/photos/one.jpg", alt: { en: "The couple", te: "వధూవరులు" } },
-  */
-  gallery: [],
 
   /* ---------- Music ---------- */
   music: "assets/audio/mangala-vadyam.mp3"

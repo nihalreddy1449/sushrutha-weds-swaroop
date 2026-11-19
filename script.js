@@ -1,14 +1,13 @@
 (function () {
   var S = window.SITE, O = window.ORN;
   var app = document.getElementById("app");
-  var intro = document.getElementById("intro");
   var dots = document.getElementById("dots");
   var audio = document.getElementById("bgm");
   var musicBtn = document.getElementById("musicBtn");
   var langBtn = document.getElementById("langBtn");
   var root = document.documentElement;
 
-  var lang = "en", entered = false;
+  var lang = "en", entered = true;
   try { lang = localStorage.getItem("lang") || "en"; } catch (e) {}
 
   /* border pattern colours */
@@ -86,10 +85,25 @@
   }
 
   /* ---------- scene builders ---------- */
-  function scene(id, cls, inner, bg) {
-    return '<section class="scene ' + cls + '" id="' + id + '">' + (bg || "") + '<div class="stage">' + inner + "</div></section>";
+  function scene(id, cls, inner, bg, decor) {
+    return '<section class="scene ' + cls + '" id="' + id + '">' + (bg || "") + '<div class="stage">' + inner + (decor || "") + "</div></section>";
   }
-  function bgM(spin) { return '<div class="bgm' + (spin ? " spin" : "") + '">' + O.mandala() + "</div>"; }
+  function parx(k, inner, cls) { return '<div class="par ' + (cls || "lay") + '" style="--k:' + k + '">' + inner + "</div>"; }
+  var SPARK_POS = [[8,12],[22,70],[36,26],[52,88],[66,18],[80,60],[90,30],[14,48],[44,54],[72,82],[58,8],[30,92],[88,76],[5,86]];
+  function sparks() {
+    return parx(-55, SPARK_POS.map(function (q, n) {
+      return '<i class="sp" style="left:' + q[0] + '%;top:' + q[1] + '%;--s:' + (6 + (n * 5) % 9) + ';animation-delay:-' + ((n * 7) % 11) / 2 + 's;animation-duration:' + (3 + (n * 3) % 4) + 's"></i>';
+    }).join(""));
+  }
+  function rays() { return parx(-40, '<div class="rays"></div>'); }
+  function trees() {
+    return '<div class="trees">' +
+      parx(34, '<div class="tr tl">' + O.bananaCorner() + "</div>", "tw") +
+      parx(34, '<div class="tr trr">' + O.bananaCorner() + "</div>", "tw") +
+      parx(46, '<div class="tr bl">' + O.bananaBase() + "</div>", "tw") +
+      parx(46, '<div class="tr brr">' + O.bananaBase() + "</div>", "tw") + "</div>";
+  }
+  function bgM() { return parx(-110, '<div class="bgm">' + O.mandala() + "</div>", "bgw"); }
 
   function build() {
     var p = parts(), out = [];
@@ -98,15 +112,15 @@
     out.push(scene("hero", "hero",
       '<div class="garland rv" style="--d:0">' + O.garland() + "</div>" +
       '<div ' + R("bless3", 200) + ">" + S.blessingsTop.map(function (b) { return "<span>" + esc(t(b)) + "</span>"; }).join("") + "</div>" +
-      orn(O.gopuram(), "gop") +
       '<div class="names">' +
-        '<div ' + R("nm foil", 500) + ">" + esc(t(S.bride.first)) + "</div>" +
-        '<div ' + R("weds", 700) + ">" + u("weds") + "</div>" +
-        '<div ' + R("nm foil", 900) + ">" + esc(t(S.groom.first)) + "</div>" +
+        '<div ' + R("nm foil", 400) + ">" + esc(t(S.bride.first)) + "</div>" +
+        '<div ' + R("weds", 600) + ">" + u("weds") + "</div>" +
+        '<div ' + R("nm foil", 800) + ">" + esc(t(S.groom.first)) + "</div>" +
       "</div>" +
-      '<p ' + R("lbl", 1100) + ">" + esc(t(S.heroLine)) + "</p>" +
-      '<div ' + R("datebar", 1300) + "><span>" + p.d + "</span><i></i><span>" + esc(p.m) + "</span><i></i><span>" + p.y + "</span></div>" +
-      '<div class="cue lbl">' + u("scroll") + "</div>", bgM(false)));
+      '<p ' + R("lbl", 1000) + ">" + esc(t(S.heroLine)) + "</p>" +
+      '<div ' + R("datebar", 1150) + "><span>" + p.d + "</span><i></i><span>" + esc(p.m) + "</span><i></i><span>" + p.y + "</span></div>" +
+      '<div ' + R("gopw", 1300) + ">" + orn(O.gopuram(), "gop") + "</div>",
+      rays() + bgM() + sparks()));
 
     /* 2 invocation */
     out.push(scene("invocation", "alt",
@@ -115,7 +129,7 @@
         return '<p class="' + (n ? "it" : "disp foil") + '" style="margin-top:' + (n ? 10 : 0) + 'px">' + esc(t(l)) + "</p>";
       }).join("") + "</div>" +
       rule() +
-      '<div ' + R("sloka", 600) + ">" + S.sloka.map(esc).join("<br>") + "</div>", bgM(false)));
+      '<div ' + R("sloka", 600) + ">" + S.sloka.map(esc).join("<br>") + "</div>", rays() + bgM() + sparks()));
 
     /* 3 invitation */
     out.push(scene("invite", "cream",
@@ -123,7 +137,7 @@
       '<p ' + R("txt", 150) + ">" + esc(t(S.inviteIntro)) + "</p>" + rule() +
       '<div ' + R("", 350) + '><span class="it">' + esc(t(S.bride.title)) + '</span><div class="nm md foil">' + esc(t(S.bride.full)) + "</div></div>" +
       '<div ' + R("weds", 500) + ">" + u("weds") + "</div>" +
-      '<div ' + R("", 650) + '><span class="it">' + esc(t(S.groom.title)) + '</span><div class="nm md foil">' + esc(t(S.groom.full)) + "</div></div>"));
+      '<div ' + R("", 650) + '><span class="it">' + esc(t(S.groom.title)) + '</span><div class="nm md foil">' + esc(t(S.groom.full)) + "</div></div>", "", trees()));
 
     /* 4 families */
     function side(s, d) {
@@ -131,21 +145,21 @@
     }
     out.push(scene("families", "",
       side(S.brideSide, 100) + rule() + side(S.groomSide, 500) +
-      '<p ' + R("txt sm dim", 800) + ">" + esc(t(S.inviteOutro)) + "</p>"));
+      '<p ' + R("txt sm dim", 800) + ">" + esc(t(S.inviteOutro)) + "</p>", bgM() + sparks()));
 
     /* 6 muhurtham */
-    out.push(scene("muhurtham", "",
+    out.push(scene("muhurtham", "cream",
       '<p ' + R("lbl", 0) + ">" + u("muh") + "</p>" +
       '<div ' + R("diyas", 150) + ">" + orn(O.diya()) + '<div class="disp foil">' + esc(p.w) + "<br>" + p.d + " " + esc(p.m) + " " + p.y + "</div>" + orn(O.diya()) + "</div>" +
       '<div ' + R("bigtime foil", 350) + "><b>" + p.time + "</b><small>" + u("pm") + "</small></div>" +
       '<p ' + R("it", 550) + ">" + esc(t(S.events[0].note)) + "</p>" +
       '<p ' + R("lbl", 700) + ">" + u("countdown") + "</p>" +
       '<div id="cd" class="rv" style="--d:800"></div>' +
-      '<p ' + R("txt sm dim", 950) + ">" + esc(t(S.tithiLine)) + "</p>", bgM(false)));
+      '<p ' + R("txt sm dim", 950) + ">" + esc(t(S.tithiLine)) + "</p>", "", trees()));
 
     /* 7 dinner + venue */
     var dn = S.events[1];
-    out.push(scene("dinner", "cream",
+    out.push(scene("dinner", "alt",
       '<p ' + R("lbl", 0) + ">" + u("dinnerLbl") + "</p>" +
       '<div ' + R("disp foil", 150) + ">" + esc(t(dn.time)) + "</div>" +
       '<p ' + R("it", 250) + ">" + esc(t(dn.note)) + "</p>" + rule() +
@@ -153,15 +167,7 @@
       '<div ' + R("nm md foil", 550) + ">" + esc(t(S.venue.name)) + "</div>" +
       '<p ' + R("txt", 650) + ">" + esc(t(S.venue.address)) + "</p>" +
       '<div ' + R("btns", 800) + '><a class="btn solid" target="_blank" rel="noopener" href="' + mapUrl + '">' + u("map") + "</a>" +
-        '<div class="btn-row"><a class="btn" target="_blank" rel="noopener" href="' + googleCal() + '">' + u("cal") + '</a></div></div>'));
-
-    /* 8 moments */
-    var arcs = (S.gallery && S.gallery.length)
-      ? S.gallery.map(function (g) { return '<div class="arc"><img loading="lazy" src="' + esc(g.src) + '" alt="' + esc(t(g.alt || "")) + '"></div>'; }).join("")
-      : [1, 2, 3].map(function () { return '<div class="arc ph">' + orn(O.lotus()) + '</div>'; }).join("");
-    out.push(scene("moments", "",
-      '<p ' + R("lbl", 0) + ">" + u("moments") + "</p>" +
-      '<div ' + R("arches", 200) + ">" + arcs + "</div>", bgM(false)));
+        '<div class="btn-row"><a class="btn" target="_blank" rel="noopener" href="' + googleCal() + '">' + u("cal") + '</a></div></div>', rays() + bgM() + sparks()));
 
     /* 11 closing */
     out.push(scene("closing", "",
@@ -170,34 +176,18 @@
       rule() +
       '<p ' + R("txt sm dim", 450) + ">" + esc(t(S.contact.label)) + "</p>" +
       '<a ' + R("phone", 550) + ' href="tel:' + esc(S.contact.phone) + '">' + esc(S.contact.display) + "</a>" +
-      '<div ' + R("", 800) + ' style="margin-top:18px"><div class="it">' + u("thank") + '</div><div class="nm md foil" style="margin-top:6px">' + esc(t(S.bride.first)) + " &amp; " + esc(t(S.groom.first)) + '</div><div class="lbl" style="margin-top:8px">' + p.y + "</div></div>", bgM(false)));
+      '<div ' + R("", 800) + ' style="margin-top:18px"><div class="it">' + u("thank") + '</div><div class="nm md foil" style="margin-top:6px">' + esc(t(S.bride.first)) + " &amp; " + esc(t(S.groom.first)) + '</div><div class="lbl" style="margin-top:8px">' + p.y + "</div></div>", rays() + bgM() + sparks()));
 
     return out.join("");
-  }
-
-  function buildIntro() {
-    var p = parts();
-    return '<div class="i-m">' + O.mandala() + "</div>" +
-      '<div class="stage">' +
-        '<div class="bless3 i-a" style="--t:.8s">' + S.blessingsTop.map(function (b) { return "<span>" + esc(t(b)) + "</span>"; }).join("") + "</div>" +
-        '<div class="i-line"></div>' +
-        '<div class="nm foil i-a" style="--t:1.5s">' + esc(t(S.bride.first)) + "</div>" +
-        '<div class="amp i-a" style="--t:1.9s">&amp;</div>' +
-        '<div class="nm foil i-a" style="--t:2.3s">' + esc(t(S.groom.first)) + "</div>" +
-        '<div class="i-line"></div>' +
-        '<p class="lbl i-a" style="--t:3s">' + u("sub") + "</p>" +
-        '<div class="datebar i-a" style="--t:3.5s"><span>' + p.d + "</span><i></i><span>" + esc(p.m) + "</span><i></i><span>" + p.y + "</span></div>" +
-        '<button class="btn i-a" id="enterBtn" style="--t:4.2s;margin-top:22px">' + u("open") + "</button>" +
-      "</div>";
   }
 
   /* ---------- countdown ---------- */
   var C = 2 * Math.PI * 62;
   function ring(val, max, label) {
     var f = Math.max(0, Math.min(1, val / max));
-    return '<div class="ring"><svg viewBox="0 0 140 140"><circle class="tr" cx="70" cy="70" r="62" stroke-width="1"/>' +
-      '<circle class="pg" cx="70" cy="70" r="62" stroke-width="2.4" stroke-dasharray="' + C.toFixed(2) + '" stroke-dashoffset="' + (C * (1 - f)).toFixed(2) + '"/></svg>' +
-      "<div><b>" + val + "</b><span>" + label + "</span></div></div>";
+    return '<div class="rw"><div class="ring"><svg viewBox="0 0 140 140"><circle class="trk" cx="70" cy="70" r="62" stroke-width="1"/>' +
+      '<circle class="pg" cx="70" cy="70" r="62" stroke-width="2.6" stroke-dasharray="' + C.toFixed(2) + '" stroke-dashoffset="' + (C * (1 - f)).toFixed(2) + '"/></svg>' +
+      "<div><b>" + val + "</b></div></div><span class=\"rl\">" + label + "</span></div>";
   }
   function tick() {
     var el = document.getElementById("cd");
@@ -219,7 +209,6 @@
     sio = new IntersectionObserver(function (es) {
       es.forEach(function (e) {
         if (!e.isIntersecting) return;
-        if (e.target.id === "hero" && !entered) return;
         e.target.classList.add("in");
       });
     }, { threshold: 0.3 });
@@ -239,58 +228,163 @@
       return '<button type="button" aria-label="Section ' + (n + 1) + '" data-t="' + s.id + '"></button>';
     }).join("");
     dots.querySelectorAll("button").forEach(function (b) {
-      b.addEventListener("click", function () { document.getElementById(b.getAttribute("data-t")).scrollIntoView({ behavior: "smooth" }); });
+      b.addEventListener("click", function () { goTo(Array.prototype.indexOf.call(scenes, document.getElementById(b.getAttribute("data-t")))); });
     });
   }
+
+  /* ---------- page-by-page sliding ---------- */
+  var scenes = [], navLock = 0, animTok = 0;
+  function collect() { scenes = Array.prototype.slice.call(document.querySelectorAll(".scene")); }
+  function curIndex() {
+    var y = window.scrollY, best = 0, d = 1e9;
+    scenes.forEach(function (n, i) { var k = Math.abs(n.offsetTop - y); if (k < d) { d = k; best = i; } });
+    return best;
+  }
+  function animateTo(y, dur) {
+    var tok = ++animTok, y0 = window.scrollY, t0 = performance.now();
+    root.style.scrollSnapType = "none";
+    function f(t) {
+      if (tok !== animTok) return;
+      var p = Math.min(1, (t - t0) / dur), e = p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+      window.scrollTo(0, y0 + (y - y0) * e);
+      if (p < 1) requestAnimationFrame(f); else root.style.scrollSnapType = "";
+    }
+    requestAnimationFrame(f);
+  }
+  function goTo(i) {
+    i = Math.max(0, Math.min(scenes.length - 1, i));
+    animateTo(scenes[i].offsetTop, 850);
+    navLock = Date.now() + 950;
+  }
+  window.addEventListener("wheel", function (e) {
+    if (e.ctrlKey) return;
+    e.preventDefault();
+    var now = Date.now();
+    if (now < navLock) { navLock = Math.max(navLock, now + 140); return; }
+    if (Math.abs(e.deltaY) < 2) return;
+    goTo(curIndex() + (e.deltaY > 0 ? 1 : -1));
+  }, { passive: false });
+  var tx = 0, ty = null;
+  window.addEventListener("touchstart", function (e) { if (e.touches.length === 1) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; } else ty = null; }, { passive: true });
+  window.addEventListener("touchmove", function (e) {
+    if (ty == null) return;
+    if (e.target.closest && e.target.closest("textarea,input")) return;
+    if (e.cancelable) e.preventDefault();
+  }, { passive: false });
+  window.addEventListener("touchend", function (e) {
+    if (ty == null) return;
+    var dy = ty - e.changedTouches[0].clientY, dx = tx - e.changedTouches[0].clientX;
+    ty = null;
+    if (Date.now() < navLock) return;
+    if (Math.abs(dy) > 26 && Math.abs(dy) > Math.abs(dx)) goTo(curIndex() + (dy > 0 ? 1 : -1));
+  }, { passive: true });
+  window.addEventListener("keydown", function (e) {
+    var k = e.key, d = 0;
+    if (k === "ArrowDown" || k === "PageDown" || k === " ") d = 1;
+    else if (k === "ArrowUp" || k === "PageUp") d = -1;
+    else if (k === "Home") { e.preventDefault(); goTo(0); return; }
+    else if (k === "End") { e.preventDefault(); goTo(scenes.length - 1); return; }
+    if (!d) return;
+    e.preventDefault();
+    if (Date.now() < navLock) return;
+    goTo(curIndex() + d);
+  });
+  window.addEventListener("resize", function () { if (scenes.length) window.scrollTo(0, scenes[curIndex()].offsetTop); });
+
+  /* ---------- parallax depth ---------- */
+  var pTick = false;
+  function parallax() {
+    pTick = false;
+    var h = window.innerHeight, y = window.scrollY;
+    scenes.forEach(function (n) {
+      var p = (n.offsetTop - y) / h;
+      if (p > -1.3 && p < 1.3) n.style.setProperty("--p", p.toFixed(3));
+    });
+  }
+  window.addEventListener("scroll", function () { if (!pTick) { pTick = true; requestAnimationFrame(parallax); } }, { passive: true });
 
   /* ---------- render ---------- */
   function render() {
     root.lang = lang;
     langBtn.textContent = u("langBtn");
     syncMusic();
+    var y = window.scrollY, seen = Array.prototype.map.call(document.querySelectorAll(".scene.in"), function (n) { return n.id; });
     app.innerHTML = build();
-    intro.innerHTML = entered ? "" : buildIntro();
-    var eb = document.getElementById("enterBtn");
-    if (eb) eb.addEventListener("click", enter);
-    buildDots(); observe(); tick();
-  }
-
-  function enter() {
-    if (entered) return;
-    entered = true;
-    document.body.classList.remove("lock");
-    document.body.classList.add("entered");
-    intro.classList.add("lift");
-    playMusic();
-    setTimeout(function () { document.getElementById("hero").classList.add("in"); }, 1100);
-    setTimeout(function () { intro.innerHTML = ""; intro.classList.remove("lift"); intro.style.display = "none"; }, 2000);
+    collect();
+    seen.forEach(function (id) { var el = document.getElementById(id); if (el) el.classList.add("in", "nt"); });
+    root.style.scrollSnapType = "none";
+    window.scrollTo(0, y);
+    buildDots(); observe(); tick(); parallax();
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      scenes.forEach(function (n) { n.classList.remove("nt"); });
+      root.style.scrollSnapType = "";
+    }); });
   }
 
   /* ---------- music ---------- */
-  var musicOk = !!S.music;
+  // Browsers block sound until the guest touches the page. So: try to play with sound at once;
+  // if blocked, play silently right away and switch the sound on at the very first touch/click/key.
+  var musicOk = !!S.music, unlocked = false;
   if (musicOk) {
-    audio.preload = "auto"; audio.src = S.music;
+    audio.preload = "auto"; audio.volume = 0.85; audio.src = S.music;
     audio.addEventListener("error", function () { musicOk = false; musicBtn.hidden = true; });
     musicBtn.hidden = false;
   }
   function syncMusic() {
-    var on = !audio.paused;
+    var on = !audio.paused && !audio.muted;
     musicBtn.setAttribute("aria-pressed", String(on));
     musicBtn.textContent = on ? u("musicOn") : u("musicOff");
   }
-  function playMusic() {
+  function startWithSound() {
     if (!musicOk) return;
-    var pr = audio.play(); if (pr && pr.catch) pr.catch(function () {});
-    setTimeout(syncMusic, 150);
+    audio.muted = false;
+    var pr = audio.play();
+    if (pr && pr.then) {
+      pr.then(function () { unlocked = true; syncMusic(); })
+        .catch(function () { audio.muted = true; var q = audio.play(); if (q && q.catch) q.catch(function () {}); syncMusic(); });
+    }
   }
-  musicBtn.addEventListener("click", function () { if (audio.paused) playMusic(); else audio.pause(); setTimeout(syncMusic, 150); });
-  audio.addEventListener("play", syncMusic); audio.addEventListener("pause", syncMusic);
+  function onGesture(e) {
+    if (unlocked) return;
+    if (e.target && e.target.closest && e.target.closest(".controls")) return;
+    startWithSound();
+  }
+  ["pointerdown", "pointerup", "mousedown", "click", "keydown", "touchstart", "touchend", "wheel"].forEach(function (ev) {
+    window.addEventListener(ev, onGesture, { passive: true });
+  });
+  musicBtn.addEventListener("click", function () {
+    if (!audio.paused && !audio.muted) { audio.pause(); }
+    else { unlocked = true; audio.muted = false; var pr = audio.play(); if (pr && pr.catch) pr.catch(function () {}); }
+    setTimeout(syncMusic, 150);
+  });
+  audio.addEventListener("play", syncMusic); audio.addEventListener("pause", syncMusic); audio.addEventListener("volumechange", syncMusic);
+  startWithSound(); // runs on page open
+
+  /* ---------- scroll hint: one small bounce so guests learn the page scrolls ---------- */
+  (function () {
+    var stopped = false, timers = [];
+    function restore() { root.style.scrollSnapType = ""; }
+    function stop() { if (stopped) return; stopped = true; timers.forEach(clearTimeout); restore(); }
+    ["wheel", "touchstart", "keydown", "pointerdown"].forEach(function (ev) { window.addEventListener(ev, stop, { once: true, passive: true }); });
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    timers.push(setTimeout(function () {
+      if (stopped || window.scrollY > 5) return;
+      root.style.scrollSnapType = "none";
+      window.scrollTo({ top: Math.round(window.innerHeight * 0.13), behavior: "smooth" });
+      timers.push(setTimeout(function () {
+        if (stopped) return;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        timers.push(setTimeout(restore, 900));
+      }, 800));
+    }, 4600));
+  })();
 
   langBtn.addEventListener("click", function () {
     lang = lang === "en" ? "te" : "en";
     try { localStorage.setItem("lang", lang); } catch (e) {}
-    intro.style.display = ""; render();
+    render();
   });
 
+  document.body.classList.add("entered");
   render();
 })();
