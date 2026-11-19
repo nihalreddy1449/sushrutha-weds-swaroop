@@ -259,13 +259,13 @@ html[lang="te"] .txt,html[lang="te"] .it,html[lang="te"] .side .home{font-weight
 html[lang="te"] .rl{letter-spacing:0;text-transform:none;font-size:calc(var(--u)*12.5)}
 
 /* ---------- layers, parallax, sparkle, rays ---------- */
-.par{transform:translate3d(0,calc(var(--p,0)*var(--k,0)*var(--u)),0);will-change:transform}
+.par{will-change:transform}
 .lay{position:absolute;inset:0;pointer-events:none;z-index:1}
 .bgw{position:absolute;inset:0;pointer-events:none;z-index:1}
 .bgm{opacity:.11}
-.rays{position:absolute;left:-35%;right:-35%;top:-12%;height:96%;transform-origin:50% 0;
+.rm{position:absolute;left:-35%;right:-35%;top:-12%;height:96%;-webkit-mask-image:radial-gradient(ellipse 62% 100% at 50% 0%,#000 0%,transparent 78%);mask-image:radial-gradient(ellipse 62% 100% at 50% 0%,#000 0%,transparent 78%)}
+.rays{position:absolute;inset:0;transform-origin:50% 0;will-change:transform,opacity;
   background:repeating-conic-gradient(from -34deg at 50% 0%,rgba(255,216,140,.13) 0deg 2.4deg,transparent 2.4deg 9deg);
-  -webkit-mask-image:radial-gradient(ellipse 62% 100% at 50% 0%,#000 0%,transparent 78%);mask-image:radial-gradient(ellipse 62% 100% at 50% 0%,#000 0%,transparent 78%);
   animation:sway 11s ease-in-out infinite alternate}
 @keyframes sway{from{transform:rotate(-2.2deg);opacity:.65}to{transform:rotate(2.2deg);opacity:1}}
 .sp{position:absolute;width:calc(var(--u)*var(--s,8));height:calc(var(--u)*var(--s,8));background:#ffe3a1;opacity:0;
@@ -295,3 +295,7 @@ html,body{overscroll-behavior:none}
   .tr.tl,.tr.trr{width:min(calc(var(--u)*205),17svh)}
   .tr.bl,.tr.brr{width:min(calc(var(--u)*185),15svh)}
 }
+
+/* keep the slide smooth: pause decorations while a page is moving */
+html.moving .rays,html.moving .sp,html.moving #petals span,html.moving .diya .flame,html.moving .diya .glow{animation-play-state:paused}
+.scene{contain:paint}

@@ -95,7 +95,7 @@
       return '<i class="sp" style="left:' + q[0] + '%;top:' + q[1] + '%;--s:' + (6 + (n * 5) % 9) + ';animation-delay:-' + ((n * 7) % 11) / 2 + 's;animation-duration:' + (3 + (n * 3) % 4) + 's"></i>';
     }).join(""));
   }
-  function rays() { return parx(-40, '<div class="rays"></div>'); }
+  function rays() { return parx(-40, '<div class="rm"><div class="rays"></div></div>'); }
   function trees() {
     return '<div class="trees">' +
       parx(34, '<div class="tr tl">' + O.bananaCorner() + "</div>", "tw") +
@@ -243,18 +243,19 @@
   function animateTo(y, dur) {
     var tok = ++animTok, y0 = window.scrollY, t0 = performance.now();
     root.style.scrollSnapType = "none";
+    root.classList.add("moving");
     function f(t) {
       if (tok !== animTok) return;
       var p = Math.min(1, (t - t0) / dur), e = p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
       window.scrollTo(0, y0 + (y - y0) * e);
-      if (p < 1) requestAnimationFrame(f); else root.style.scrollSnapType = "";
+      if (p < 1) requestAnimationFrame(f); else { root.style.scrollSnapType = ""; root.classList.remove("moving"); }
     }
     requestAnimationFrame(f);
   }
   function goTo(i) {
     i = Math.max(0, Math.min(scenes.length - 1, i));
-    animateTo(scenes[i].offsetTop, 850);
-    navLock = Date.now() + 950;
+    animateTo(scenes[i].offsetTop, 1000);
+    navLock = Date.now() + 1080;
   }
   window.addEventListener("wheel", function (e) {
     if (e.ctrlKey) return;
@@ -291,14 +292,19 @@
   });
   window.addEventListener("resize", function () { if (scenes.length) window.scrollTo(0, scenes[curIndex()].offsetTop); });
 
-  /* ---------- parallax depth ---------- */
-  var pTick = false;
+  /* ---------- parallax depth (direct transforms, no style recalculation) ---------- */
+  var pTick = false, pars = [];
+  function collectPars() {
+    pars = Array.prototype.map.call(document.querySelectorAll(".par"), function (el) {
+      return { el: el, sc: el.closest(".scene"), k: parseFloat(el.style.getPropertyValue("--k")) || 0 };
+    });
+  }
   function parallax() {
     pTick = false;
-    var h = window.innerHeight, y = window.scrollY;
-    scenes.forEach(function (n) {
-      var p = (n.offsetTop - y) / h;
-      if (p > -1.3 && p < 1.3) n.style.setProperty("--p", p.toFixed(3));
+    var h = window.innerHeight, y = window.scrollY, u = Math.min(window.innerWidth / 450, h / 800);
+    pars.forEach(function (o) {
+      var p = (o.sc.offsetTop - y) / h;
+      if (p > -1.3 && p < 1.3) o.el.style.transform = "translate3d(0," + (p * o.k * u).toFixed(1) + "px,0)";
     });
   }
   window.addEventListener("scroll", function () { if (!pTick) { pTick = true; requestAnimationFrame(parallax); } }, { passive: true });
@@ -310,7 +316,7 @@
     syncMusic();
     var y = window.scrollY, seen = Array.prototype.map.call(document.querySelectorAll(".scene.in"), function (n) { return n.id; });
     app.innerHTML = build();
-    collect();
+    collect(); collectPars();
     seen.forEach(function (id) { var el = document.getElementById(id); if (el) el.classList.add("in", "nt"); });
     root.style.scrollSnapType = "none";
     window.scrollTo(0, y);
@@ -376,7 +382,7 @@
         window.scrollTo({ top: 0, behavior: "smooth" });
         timers.push(setTimeout(restore, 900));
       }, 800));
-    }, 4600));
+    }, 1500));
   })();
 
   langBtn.addEventListener("click", function () {
